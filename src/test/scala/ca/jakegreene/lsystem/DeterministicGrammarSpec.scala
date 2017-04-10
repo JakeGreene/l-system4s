@@ -3,7 +3,7 @@ package ca.jakegreene.lsystem
 import org.scalatest.Matchers
 import org.scalatest.FlatSpec
 
-class GrammarSpec extends FlatSpec with Matchers {
+class DeterministicGrammarSpec extends FlatSpec with Matchers {
   "A DeterministicGrammer" should "transform variables based on rules" in {
     val grammar = Grammar.deterministic(Set('A', 'B'), Map(('A' -> "AB"), ('B' -> "A")))
     val result = grammar.produce("A", 4)
