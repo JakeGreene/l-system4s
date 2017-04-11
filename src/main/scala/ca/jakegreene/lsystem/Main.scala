@@ -8,4 +8,10 @@ object Main extends App {
   val aToC = Rule('A', "C", 0.5)
   val randomGrammar = Grammar.stochastic(Set('A', 'B', 'C'), Set(aToB, aToC))
   println(randomGrammar.produce("A" * 10, 1))
+  
+  val aToBContext = ContextRule.left('A', "B", "D")
+  val aToCContext = ContextRule.right('A', "C", "D")
+  val contextualGrammar = Grammar.contextual(Set('A'), Set(aToBContext, aToCContext))
+  val result = contextualGrammar.produce("DAD", 1)  
+  println(result)
 }

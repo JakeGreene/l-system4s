@@ -62,9 +62,8 @@ case class ContextSensitiveGrammar(variables: Set[Char], rules: Set[ContextRule]
         } else if (matchedRules.size == 1) {
           matchedRules.head.output
         } else {
-          val context = result.slice(0, i) + "\\033[1;31m" + v + "\\033[1;31m" + result.slice(i + 1, result.length)
           throw new IllegalArgumentException(
-            s"Ambiguous rules. Rules $matchedRules all match for variable $v in context $context"
+            s"""Ambiguous rules. Rules $matchedRules all match for variable $v in context ${result}"""
           )
         }
       case (v, _) if freeRules.isDefinedAt(v) =>
