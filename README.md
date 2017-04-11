@@ -1,2 +1,2 @@
-# L-System4S
-Easily define grammars for l-systems and have those rules applied to axiams
+# L-System4s
+Easily define grammars for L-systems and have those grammars applied to axioms.
