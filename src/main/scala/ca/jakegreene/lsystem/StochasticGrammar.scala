@@ -17,7 +17,7 @@ case class StochasticGrammar(variables: Set[Char], rules: Set[Rule]) extends Gra
   
   def produce(axiom: String, steps: Int = 100): String = {
     var result = axiom
-    for (i <- 0 to steps) {
+    for (i <- 0 until steps) {
       result = result.flatMap {
         case v if ruleSets.isDefinedAt(v) =>
           val rulesWithCDF = ruleSets(v)

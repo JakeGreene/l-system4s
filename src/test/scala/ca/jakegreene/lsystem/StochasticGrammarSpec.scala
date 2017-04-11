@@ -26,4 +26,13 @@ class StochasticGrammarSpec extends FlatSpec with Matchers {
     val result = grammar.produce("AC", 1)
     result should be ("BC")
   }
+  
+  it should "iteratively produce" in {
+    val aToB = Rule('A', "B", 1.0)
+    val bToC = Rule('B', "C", 1.0)
+    val cToD = Rule('C', "D", 1.0)
+    val grammar = Grammar.stochastic(Set('A', 'B', 'C'), Set(aToB, bToC, cToD))
+    val result = grammar.produce("ABCD", 2)
+    result should be ("CDDD")
+  }
 }

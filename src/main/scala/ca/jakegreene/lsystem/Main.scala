@@ -12,6 +12,6 @@ object Main extends App {
   val aToBContext = ContextRule.left('A', "B", "D")
   val aToCContext = ContextRule.right('A', "C", "D")
   val contextualGrammar = Grammar.contextual(Set('A'), Set(aToBContext, aToCContext))
-  val result = contextualGrammar.produce("DAD", 1)  
+  val result = contextualGrammar.produce("DAD", 1)
   println(result)
 }

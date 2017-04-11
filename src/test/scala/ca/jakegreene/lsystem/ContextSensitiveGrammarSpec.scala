@@ -14,8 +14,17 @@ class ContextSensitiveGrammarSpec extends FlatSpec with Matchers {
   it should "infer constants" in {
     val aToB = ContextRule.free('A', "B")
     val grammar = Grammar.contextual(Set('A'), Set(aToB))
-    val result = grammar.produce("AC", 2)
+    val result = grammar.produce("AC", 1)
     result should be ("BC")
+  }
+  
+  it should "iteratibely produce" in {
+    val aToB = ContextRule.free('A', "B")
+    val bToC = ContextRule.free('B', "C")
+    val cToD = ContextRule.free('C', "D")
+    val grammar = Grammar.contextual(Set('A'), Set(aToB, bToC, cToD))
+    val result = grammar.produce("ABCD", 2)
+    result should be ("CDDD")
   }
   
   it should "follow left sensitive rules" in {
@@ -61,6 +70,14 @@ class ContextSensitiveGrammarSpec extends FlatSpec with Matchers {
     val grammar = Grammar.contextual(Set('A'), Set(aToB, aToZWhenC))
     val result = grammar.produce("CAD", 1)
     result should be ("CZD")
+  }
+  
+  it should "apply all valid rules at the same time during a step" in {
+    val aToB = ContextRule.free('A', "B")
+    val bToC = ContextRule.left('B', "C", "B")
+    val grammar = Grammar.contextual(Set('A', 'B'), Set(aToB, bToC))
+    val result = grammar.produce("AB", 1)
+    result should be ("BB")
   }
   
   it should "find ambiguous context rules" in {

@@ -10,9 +10,9 @@ object ContextRule {
 case class ContextRule(input: Char, output: String, left: Option[String] = None, right: Option[String] = None)
 
 case class ContextSensitiveGrammar(variables: Set[Char], rules: Set[ContextRule]) extends Grammar {
-  
+
   val ruleSets = rules.groupBy(_.input)
-  val contextualRules = ruleSets.mapValues { 
+  val contextualRules = ruleSets.mapValues {
     _.filter {
       case ContextRule(_, _, None, None) => false
       case _ => true
@@ -38,40 +38,41 @@ case class ContextSensitiveGrammar(variables: Set[Char], rules: Set[ContextRule]
 
   def produce(axiom: String, steps: Int = 100): String = {
     var result = axiom
-    result = result.zipWithIndex.flatMap {
-      case (v, i) if contextualRules.isDefinedAt(v) =>
-        def leftSlice(size: Int) = result.slice(i - size, i)
-        def rightSlice(size: Int) = result.slice(i + 1, i + size + 1)
-        val rules = contextualRules(v)
-        val matchedRules = rules.filter {
-          case ContextRule(_, output, Some(l), Some(r)) =>
-            val left = leftSlice(l.length)
-            val right = rightSlice(r.length)
-            left == l && right == r
-          case ContextRule(_, output, None, Some(r)) =>
-            val right = rightSlice(r.length)
-            right == r
-          case ContextRule(_, output, Some(l), None) =>
-            val left = leftSlice(l.length)
-            left == l
-          case _ => false
-        }
-        if (matchedRules.isEmpty) {
-          // Default to the identity A -> A
-          v.toString
-        } else if (matchedRules.size == 1) {
-          matchedRules.head.output
-        } else {
-          throw new IllegalArgumentException(
-            s"""Ambiguous rules. Rules $matchedRules all match for variable $v in context ${result}"""
-          )
-        }
-      case (v, _) if freeRules.isDefinedAt(v) =>
-        val rule = freeRules(v)
-        rule.output
-      case (constant, _) =>
-        constant.toString
-    }.mkString
+    for (step <- 0 until steps) {
+      result = result.zipWithIndex.flatMap {
+        case (v, i) if contextualRules.isDefinedAt(v) =>
+          def leftSlice(size: Int) = result.slice(i - size, i)
+          def rightSlice(size: Int) = result.slice(i + 1, i + size + 1)
+          val rules = contextualRules(v)
+          val matchedRules = rules.filter {
+            case ContextRule(_, output, Some(l), Some(r)) =>
+              val left = leftSlice(l.length)
+              val right = rightSlice(r.length)
+              left == l && right == r
+            case ContextRule(_, output, None, Some(r)) =>
+              val right = rightSlice(r.length)
+              right == r
+            case ContextRule(_, output, Some(l), None) =>
+              val left = leftSlice(l.length)
+              left == l
+            case _ => false
+          }
+          if (matchedRules.isEmpty) {
+            // Default to the identity A -> A
+            v.toString
+          } else if (matchedRules.size == 1) {
+            matchedRules.head.output
+          } else {
+            throw new IllegalArgumentException(
+              s"""Ambiguous rules. Rules $matchedRules all match for variable $v in context ${result} at step $step""")
+          }
+        case (v, _) if freeRules.isDefinedAt(v) =>
+          val rule = freeRules(v)
+          rule.output
+        case (constant, _) =>
+          constant.toString
+      }.mkString
+    }
     result
   }
 }
