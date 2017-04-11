@@ -8,6 +8,10 @@ object Grammar {
   def stochastic(variables: Set[Char], rules: Set[Rule]): Grammar = {
     new StochasticGrammar(variables, rules)
   }
+  
+  def contextual(variables: Set[Char], rules: Set[ContextRule]): Grammar = {
+    new ContextSensitiveGrammar(variables, rules)
+  }
 }
 
 trait Grammar {
