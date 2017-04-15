@@ -52,4 +52,12 @@ object Main extends App {
   //  .steps(5)
   //  .build()
   //val result = grammar.apply("AABA")
+  
+  val builtGrammar = new GrammarBuilder().variables('A', 'B')
+    .rule('A' -> "B")
+    .rule('A' -> "C")
+    .rule('A' -> "BB").left("B")
+    .rule('B' -> "CC").probability(0.5).right("A")
+    .build()
+  println(builtGrammar.produce("AABA"))
 }
