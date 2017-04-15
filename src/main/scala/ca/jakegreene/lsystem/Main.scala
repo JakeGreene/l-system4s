@@ -57,7 +57,7 @@ object Main extends App {
     .rule('A' -> "B")
     .rule('A' -> "C")
     .rule('A' -> "BB").left("B")
-    .rule('B' -> "CC").probability(0.5).right("A")
+    .rule('B' -> "CC").weight(0.5).right("A")
     .build()
   println(builtGrammar.produce("AABA"))
 }

@@ -33,8 +33,8 @@ class GrammarBuilderSpec extends FlatSpec with Matchers {
   it should "handle probabilities" in {
     val builder = new GrammarBuilder()
     val grammar = builder.variables('A')
-      .rule('A' -> "B").probability(0.5)
-      .rule('A' -> "C").probability(0.5)
+      .rule('A' -> "B").weight(0.5)
+      .rule('A' -> "C").weight(0.5)
       .build()
     val trials = 1000
     val wasBs = for {
@@ -49,8 +49,8 @@ class GrammarBuilderSpec extends FlatSpec with Matchers {
   it should "handle context and probabilities" in {
     val builder = new GrammarBuilder()
     val grammar = builder.variables('A')
-      .rule('A' -> "B").probability(0.5).left("D")
-      .rule('A' -> "C").probability(0.5).right("D")
+      .rule('A' -> "B").weight(0.5).left("D")
+      .rule('A' -> "C").weight(0.5).right("D")
       .rule('A' -> "Z") // should be none of these
       .build()
     val trials = 1000

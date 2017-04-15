@@ -24,7 +24,7 @@ class GrammarBuilder extends Builder { gb =>
       rb.r = Some(r)
       rb
     }
-    def probability(p: Double): rb.type = {
+    def weight(p: Double): rb.type = {
       rb.p = p
       rb
     }
