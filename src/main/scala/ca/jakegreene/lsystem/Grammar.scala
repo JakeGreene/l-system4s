@@ -12,8 +12,18 @@ object Grammar {
   def contextual(variables: Set[Char], rules: Set[ContextRule]): Grammar = {
     new ContextSensitiveGrammar(variables, rules)
   }
+  
+  def stochasticContextual(variables: Set[Char], rules: Set[StochasticContextRule]): Grammar = {
+    new StochasticContextSensitiveGrammar(variables, rules)
+  }
 }
 
 trait Grammar {
   def produce(axiom: String, steps: Int = 100): String
 }
+
+trait Stochastic
+trait Deterministic
+
+trait ContextFree
+trait ContextSensitive
