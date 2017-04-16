@@ -4,8 +4,8 @@ object Main extends App {
   val grammar = Grammar.deterministic(Set('A', 'B'), Map(('A' -> "AB"), ('B' -> "A")))
   println(grammar.produce("A", 4))
   
-  val aToB = Rule('A', "B", 0.5)
-  val aToC = Rule('A', "C", 0.5)
+  val aToB = Rule.free('A' -> "B", 0.5)
+  val aToC = Rule.free('A' -> "C", 0.5)
   val randomGrammar = Grammar.stochastic(Set('A', 'B', 'C'), Set(aToB, aToC))
   println(randomGrammar.produce("A" * 10, 1))
   
@@ -16,15 +16,15 @@ object Main extends App {
 //  println(result)
   
   
-  val syllableConstant = StochasticContextRule.free('S', "c", 0.5)
-  val syllableVowel = StochasticContextRule.free('S', "v", 0.5)
-  val syllableWait = StochasticContextRule.left('S', "S", 1.0, "S")
-  val syllableForceVowel = StochasticContextRule.left('S', "v", 1.0, "c")
-  val endExtends = StochasticContextRule.left('E', "SE", 1.0, "c")
-  val end = StochasticContextRule.free('E', "S", 1.0)
-  val endWait = StochasticContextRule.left('E', "E", 1.0, "S")
-  val first = StochasticContextRule.free('F', "SSS", 1.0)
-  val last = StochasticContextRule.free('L', "SSSE", 1.0)
+  val syllableConstant = Rule.free('S' -> "c", 0.5)
+  val syllableVowel = Rule.free('S' -> "v", 0.5)
+  val syllableWait = Rule.left("S", 'S' -> "S")
+  val syllableForceVowel = Rule.left("c", 'S' -> "v")
+  val endExtends = Rule.left("c", 'E' -> "SE")
+  val end = Rule.free('E' -> "S")
+  val endWait = Rule.left("S", 'E' -> "E")
+  val first = Rule.free('F' -> "SSS")
+  val last = Rule.free('L' -> "SSSE")
   val stochasticContextualGrammar = Grammar.stochasticContextual(
     Set('S', 'F', 'L'),
     Set(syllableConstant,

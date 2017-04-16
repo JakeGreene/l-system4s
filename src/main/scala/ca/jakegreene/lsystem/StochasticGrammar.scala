@@ -1,7 +1,5 @@
 package ca.jakegreene.lsystem
 
-case class Rule(input: Char, output: String, probability: Double)
-
 case class StochasticGrammar(variables: Set[Char], rules: Set[Rule]) extends Grammar {
   
   val ruleSets = rules.groupBy(r => r.input).mapValues { case rules => 
@@ -11,7 +9,7 @@ case class StochasticGrammar(variables: Set[Char], rules: Set[Rule]) extends Gra
      * but we need smallest (1 element) to largest in order to calculate a CDF
      */  
     val inits = orderedRules.inits.toList.reverse.filterNot(_.isEmpty)
-    val cdf = inits.map(_.map(_.probability).sum)
+    val cdf = inits.map(_.map(_.weight).sum)
     orderedRules.zip(cdf)
   }
   

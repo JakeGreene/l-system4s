@@ -5,8 +5,8 @@ import org.scalatest.FlatSpec
 
 class StochasticGrammarSpec extends FlatSpec with Matchers {
   "A StochasticGrammar" should "randomly select weighted rules" in {
-    val aToB = Rule('A', "B", 0.5)
-    val aToC = Rule('A', "C", 0.5)
+    val aToB = Rule.free('A' -> "B", 0.5)
+    val aToC = Rule.free('A' -> "C", 0.5)
     val grammar = Grammar.stochastic(Set('A', 'B', 'C'), Set(aToB, aToC))
     val axiomSize = 1000
     val axiom = "A" * axiomSize
@@ -21,16 +21,16 @@ class StochasticGrammarSpec extends FlatSpec with Matchers {
   }
   
   it should "infer constants" in {
-    val aToB = Rule('A', "B", 1.0)
+    val aToB = Rule.free('A' -> "B", 1.0)
     val grammar = Grammar.stochastic(Set('A', 'B', 'C'), Set(aToB))
     val result = grammar.produce("AC", 1)
     result should be ("BC")
   }
   
   it should "iteratively produce" in {
-    val aToB = Rule('A', "B", 1.0)
-    val bToC = Rule('B', "C", 1.0)
-    val cToD = Rule('C', "D", 1.0)
+    val aToB = Rule.free('A' -> "B", 1.0)
+    val bToC = Rule.free('B' -> "C", 1.0)
+    val cToD = Rule.free('C' -> "D", 1.0)
     val grammar = Grammar.stochastic(Set('A', 'B', 'C'), Set(aToB, bToC, cToD))
     val result = grammar.produce("ABCD", 2)
     result should be ("CDDD")

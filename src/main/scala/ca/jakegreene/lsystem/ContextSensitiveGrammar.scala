@@ -1,20 +1,11 @@
 package ca.jakegreene.lsystem
 
-object ContextRule {
-  def free(input: Char, output: String) = ContextRule(input, output)
-  def left(input: Char, output: String, left: String) = ContextRule(input, output, left = Some(left))
-  def right(input: Char, output: String, right: String) = ContextRule(input, output, right = Some(right))
-  def bound(input: Char, output: String, left: String, right: String) = ContextRule(input, output, Some(left), Some(right))
-}
-
-case class ContextRule(input: Char, output: String, left: Option[String] = None, right: Option[String] = None)
-
-case class ContextSensitiveGrammar(variables: Set[Char], rules: Set[ContextRule]) extends Grammar {
+case class ContextSensitiveGrammar(variables: Set[Char], rules: Set[Rule]) extends Grammar {
 
   val ruleSets = rules.groupBy(_.input)
   val contextualRules = ruleSets.mapValues {
     _.filter {
-      case ContextRule(_, _, None, None) => false
+      case Rule.Free(_, _) => false
       case _ => true
     }
   }.filter {
@@ -24,7 +15,7 @@ case class ContextSensitiveGrammar(variables: Set[Char], rules: Set[ContextRule]
 
   val freeRules = ruleSets.mapValues {
     _.filter {
-      case ContextRule(_, _, None, None) => true
+      case Rule.Free(_, _) => true
       case _ => false
     }
   }.filter {
@@ -45,14 +36,14 @@ case class ContextSensitiveGrammar(variables: Set[Char], rules: Set[ContextRule]
           def rightSlice(size: Int) = result.slice(i + 1, i + size + 1)
           val rules = contextualRules(v)
           val matchedRules = rules.filter {
-            case ContextRule(_, output, Some(l), Some(r)) =>
+            case Rule.Bounded(l, (_, output), r, _) =>
               val left = leftSlice(l.length)
               val right = rightSlice(r.length)
               left == l && right == r
-            case ContextRule(_, output, None, Some(r)) =>
+            case Rule.Right((_, output), r, _) =>
               val right = rightSlice(r.length)
               right == r
-            case ContextRule(_, output, Some(l), None) =>
+            case Rule.Left(l, (_, output), _) =>
               val left = leftSlice(l.length)
               left == l
             case _ => false

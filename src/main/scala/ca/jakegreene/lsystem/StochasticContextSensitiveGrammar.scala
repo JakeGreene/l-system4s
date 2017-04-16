@@ -1,28 +1,11 @@
 package ca.jakegreene.lsystem
 
-object StochasticContextRule {
-  def free(input: Char, output: String, weight: Double) = {
-    StochasticContextRule(input, output, weight)
-  }
-  def left(input: Char, output: String, weight: Double, left: String) = {
-    StochasticContextRule(input, output, weight, left = Some(left))
-  }
-  def right(input: Char, output: String, weight: Double, right: String) = {
-    StochasticContextRule(input, output, weight, right = Some(right))
-  }
-  def bound(input: Char, output: String, weight: Double, left: String, right: String) = {
-    StochasticContextRule(input, output, weight, Some(left), Some(right))
-  }
-}
-
-case class StochasticContextRule(input: Char, output: String, probability: Double = 1.0, left: Option[String] = None, right: Option[String] = None)
-
-case class StochasticContextSensitiveGrammar(variables: Set[Char], rules: Set[StochasticContextRule]) extends Grammar {
+case class StochasticContextSensitiveGrammar(variables: Set[Char], rules: Set[Rule]) extends Grammar {
 
   val ruleSets = rules.groupBy(_.input)
   val contextualRules = ruleSets.mapValues { rules =>
     val contextual = rules.filter {
-      case StochasticContextRule(_, _, _, None, None) => false
+      case Rule.Free(_, _) => false
       case _ => true
     }
     val orderedRules = contextual.toList
@@ -31,7 +14,7 @@ case class StochasticContextSensitiveGrammar(variables: Set[Char], rules: Set[St
      * but we need smallest (1 element) to largest in order to calculate a CDF
      */  
     val inits = orderedRules.inits.toList.reverse.filterNot(_.isEmpty)
-    val cdf = inits.map(_.map(_.probability).sum)
+    val cdf = inits.map(_.map(_.weight).sum)
     orderedRules.zip(cdf)
   }.filter {
     case (_, rules) if rules.isEmpty => false
@@ -40,7 +23,7 @@ case class StochasticContextSensitiveGrammar(variables: Set[Char], rules: Set[St
 
   val freeRules = ruleSets.mapValues { rules =>
     val contextual = rules.filter {
-      case StochasticContextRule(_, _, _, None, None) => true
+      case Rule.Free(_, _) => true
       case _ => false
     }
     val orderedRules = contextual.toList
@@ -49,7 +32,7 @@ case class StochasticContextSensitiveGrammar(variables: Set[Char], rules: Set[St
      * but we need smallest (1 element) to largest in order to calculate a CDF
      */  
     val inits = orderedRules.inits.toList.reverse.filterNot(_.isEmpty)
-    val cdf = inits.map(_.map(_.probability).sum)
+    val cdf = inits.map(_.map(_.weight).sum)
     orderedRules.zip(cdf)
   }.filter { case (_, rules) =>
     rules.nonEmpty
@@ -75,14 +58,14 @@ case class StochasticContextSensitiveGrammar(variables: Set[Char], rules: Set[St
     def rightSlice(size: Int) = context.slice(index + 1, index + size + 1)
     val rules = contextualRules(variable)
     val matchedRules = rules.filter {
-      case (StochasticContextRule(_, output, _, Some(l), Some(r)), _) =>
+      case (Rule.Bounded(l, (_, output), r, _), _) =>
         val left = leftSlice(l.length)
         val right = rightSlice(r.length)
         left == l && right == r
-      case (StochasticContextRule(_, output, _, None, Some(r)), _) =>
+      case (Rule.Right((_, output), r, _), _) =>
         val right = rightSlice(r.length)
         right == r
-      case (StochasticContextRule(_, output, _, Some(l), None), _) =>
+      case (Rule.Left(l, (_, output),_), _) =>
         val left = leftSlice(l.length)
         left == l
       case _ => false

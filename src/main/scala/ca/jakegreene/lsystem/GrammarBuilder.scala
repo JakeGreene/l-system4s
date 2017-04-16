@@ -8,7 +8,7 @@ trait Builder {
 class GrammarBuilder extends Builder { gb =>
   
   var vars = Set[Char]()
-  var rules = Set[StochasticContextRule]()
+  var rules = Set[Rule]()
   
   class RuleBuilder(transform: (Char, String)) extends Builder { rb =>
     
@@ -37,7 +37,7 @@ class GrammarBuilder extends Builder { gb =>
       gb.build()
     }
     private def append(): Unit = {
-      gb.rules += StochasticContextRule(transform._1, transform._2, p, l, r)
+      gb.rules += Rule(l, transform, r, p)
     }
   }
   
